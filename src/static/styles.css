@@ -187,7 +187,9 @@ section h3 {
   margin-top: auto;
   padding-top: 10px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  align-items: stretch;
 }
 
 /* Activity Tag */
@@ -468,7 +470,96 @@ button {
   font-size: 0.85rem;
 }
 
-footer {
+/* Share button */
+.share-button {
+  background-color: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  letter-spacing: 0.3px;
+}
+
+.share-button:hover {
+  background-color: var(--primary);
+  color: white;
+}
+
+.share-icon {
+  font-size: 0.9rem;
+}
+
+/* Share popover */
+.share-popover {
+  position: absolute;
+  z-index: 2000;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  min-width: 180px;
+}
+
+.share-popover-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.share-popover-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.share-option {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+  box-sizing: border-box;
+}
+
+.share-option:hover {
+  opacity: 0.85;
+}
+
+.share-twitter {
+  background-color: #000;
+  color: #fff;
+}
+
+.share-whatsapp {
+  background-color: #25d366;
+  color: #fff;
+}
+
+.share-copy {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+
   text-align: center;
   margin-top: 20px;
   padding: 10px;

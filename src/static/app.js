@@ -600,6 +600,9 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         `
         }
+        <button class="share-button" data-activity="${name}" aria-label="Share this activity">
+          <span class="share-icon">📤</span> Share
+        </button>
       </div>
     `;
 
@@ -619,7 +622,104 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Add click handler for share button
+    const shareButton = activityCard.querySelector(".share-button");
+    shareButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      shareActivity(name, details, shareButton);
+    });
+
     activitiesList.appendChild(activityCard);
+  }
+
+  // Share an activity using the Web Share API or a fallback popover
+  function shareActivity(name, details, triggerButton) {
+    const schedule = formatSchedule(details);
+    const shareText = `Check out "${name}" at Mergington High School!\n${details.description}\nSchedule: ${schedule}`;
+    const shareUrl = window.location.href;
+
+    // Use native Web Share API when available (mobile & modern browsers)
+    if (navigator.share) {
+      navigator
+        .share({
+          title: `${name} – Mergington High School`,
+          text: shareText,
+          url: shareUrl,
+        })
+        .catch((err) => {
+          // User cancelled or share failed – ignore AbortError silently
+          if (err.name !== "AbortError") {
+            console.error("Share failed:", err);
+          }
+        });
+      return;
+    }
+
+    // Fallback: show a small share popover anchored to the button
+    showSharePopover(name, shareText, shareUrl, triggerButton);
+  }
+
+  // Show a share options popover for browsers without Web Share API
+  function showSharePopover(activityName, shareText, shareUrl, anchorButton) {
+    // Close any existing popover first
+    const existingPopover = document.querySelector(".share-popover");
+    if (existingPopover) {
+      existingPopover.remove();
+    }
+
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedText = encodeURIComponent(shareText);
+
+    const popover = document.createElement("div");
+    popover.className = "share-popover";
+    popover.innerHTML = `
+      <div class="share-popover-title">Share this activity</div>
+      <div class="share-popover-buttons">
+        <a class="share-option share-twitter" href="https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}" target="_blank" rel="noopener noreferrer" aria-label="Share on X / Twitter">𝕏 X / Twitter</a>
+        <a class="share-option share-whatsapp" href="https://wa.me/?text=${encodedText}%20${encodedUrl}" target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp">💬 WhatsApp</a>
+        <button class="share-option share-copy" aria-label="Copy link">🔗 Copy link</button>
+      </div>
+    `;
+
+    document.body.appendChild(popover);
+
+    // Position popover near the anchor button
+    const rect = anchorButton.getBoundingClientRect();
+    const scrollY = window.scrollY || document.documentElement.scrollTop;
+    const scrollX = window.scrollX || document.documentElement.scrollLeft;
+    popover.style.top = `${rect.bottom + scrollY + 6}px`;
+    popover.style.left = `${rect.left + scrollX}px`;
+
+    // Copy link handler
+    popover.querySelector(".share-copy").addEventListener("click", () => {
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => {
+          showMessage("Link copied to clipboard!", "success");
+        })
+        .catch(() => {
+          showMessage("Could not copy link. Please copy it manually.", "error");
+        });
+      closePopover();
+    });
+
+    // Close popover and clean up listener
+    function closePopover() {
+      if (popover.parentNode) {
+        popover.remove();
+      }
+      document.removeEventListener("click", onOutsideClick, true);
+    }
+
+    // Close popover when clicking outside
+    function onOutsideClick(event) {
+      if (!popover.contains(event.target) && event.target !== anchorButton) {
+        closePopover();
+      }
+    }
+    setTimeout(() => {
+      document.addEventListener("click", onOutsideClick, true);
+    }, 0);
   }
 
   // Event listeners for search and filter
